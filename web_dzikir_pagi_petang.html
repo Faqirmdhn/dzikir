@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dzikir Pagi & Petang Interaktif</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        quran: ['"Scheherazade New"', 'Amiri', 'Traditional Arabic', 'serif'],
+                        arabic: ['Amiri', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Quranic Script and Sans-Serif -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Scheherazade+New:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .font-quran {
+            font-family: 'Scheherazade New', 'Amiri', serif;
+            line-height: 2.3;
+            word-spacing: 2px;
+        }
+        
+        .arabic-text {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #059669;
+            border-radius: 4px;
+        }
+        
+        .pulse-ring {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulse-ring 1.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-emerald-100 dark:border-emerald-900/30 shadow-sm transition-colors">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
+                    <i class="fa-solid font-bold text-xl fa-book-quran"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-emerald-900 dark:text-emerald-300 leading-tight">Dzikir Pilihan</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Bacaan Dzikir Pagi, Petang & Setelah Shalat</p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center gap-2">
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all text-sm flex items-center gap-1" title="Suara Sentuhan">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-emerald-600 dark:text-emerald-400"></i>
+                </button>
+
+                <!-- Arabic Font Size Controls -->
+                <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 gap-1">
+                    <button onclick="changeFontSize(-2)" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs" title="Kecilkan Font Arab">A-</button>
+                    <span id="fontSizeDisplay" class="text-xs font-semibold px-1 text-emerald-700 dark:text-emerald-400">32</span>
+                    <button onclick="changeFontSize(2)" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs" title="Besarkan Font Arab">A+</button>
+                </div>
+
+                <!-- Dark Mode Switch -->
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all text-sm" title="Mode Gelap/Terang">
+                    <i id="darkModeIcon" class="fa-solid fa-moon text-amber-500"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+        
+        <!-- Banner & Progress Overview -->
+        <section class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-900 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+            <!-- Decorative Islamic Pattern Overlay -->
+            <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/5 blur-xl pointer-events-none"></div>
+            <div class="absolute right-2 bottom-2 text-white/5 font-quran text-8xl pointer-events-none select-none">أَذْكَار</div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-emerald-950/40 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-emerald-200 mb-2 border border-emerald-500/30">
+                        <i class="fa-solid fa-calendar-day text-amber-400"></i>
+                        <span id="currentDateStr">Hari ini</span>
+                    </div>
+                    <h2 id="activeCategoryTitle" class="text-2xl md:text-3xl font-extrabold tracking-tight">Dzikir Pagi</h2>
+                    <p id="activeCategoryDesc" class="text-emerald-100/80 text-sm mt-1 max-w-xl">
+                        Dibaca setelah Shalat Subuh hingga matahari terbit atau menjelang Dzuhur untuk memohon perlindungan dan kelapangan rezeki.
+                    </p>
+                </div>
+
+                <!-- Progress Circle Card -->
+                <div class="w-full md:w-auto bg-emerald-950/50 backdrop-blur-md p-4 rounded-2xl border border-emerald-500/20 flex items-center justify-between md:justify-start gap-4 min-w-[240px]">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-emerald-200/80 uppercase tracking-wider font-semibold">Kemajuan Anda</span>
+                        <div class="flex items-baseline gap-1 mt-0.5">
+                            <span id="completedCount" class="text-2xl font-bold text-amber-400">0</span>
+                            <span class="text-sm text-emerald-200" id="totalCount">/ 0 Selesai</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar Ring / Bar -->
+                    <div class="flex flex-col items-end flex-grow md:flex-grow-0">
+                        <span id="percentText" class="text-xs font-bold text-amber-300">0%</span>
+                        <div class="w-28 h-2.5 bg-emerald-950 rounded-full overflow-hidden mt-1 border border-emerald-600/40">
+                            <div id="progressBarInner" class="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 w-0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabs & Action Bar -->
+        <section class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <!-- Category Tabs -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                <button onclick="switchCategory('pagi')" id="tab-pagi" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 whitespace-nowrap bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
+                    <i class="fa-solid fa-sun text-amber-300"></i>
+                    Dzikir Pagi
+                </button>
+                <button onclick="switchCategory('petang')" id="tab-petang" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-moon text-indigo-400"></i>
+                    Dzikir Petang
+                </button>
+                <button onclick="switchCategory('shalat')" id="tab-shalat" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-kaaba text-emerald-500"></i>
+                    Setelah Shalat
+                </button>
+                <button onclick="switchCategory('pilihan')" id="tab-pilihan" class="tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-heart text-rose-500"></i>
+                    Dzikir Utama
+                </button>
+            </div>
+
+            <!-- Secondary Actions -->
+            <div class="flex items-center justify-between sm:justify-end gap-2">
+                <button onclick="toggleShowTransliteration()" id="translitToggleBtn" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-font"></i>
+                    <span id="translitBtnText">Sembunyikan Latin</span>
+                </button>
+                
+                <button onclick="resetCurrentProgress()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 text-xs font-medium transition-colors flex items-center gap-1.5" title="Reset Semua Ceklis">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    Reset Hari Ini
+                </button>
+            </div>
+        </section>
+
+        <!-- Dhikr List Container -->
+        <section id="dhikrListContainer" class="flex flex-col gap-4">
+            <!-- Dynamic Dhikr Items will be injected here via JavaScript -->
+        </section>
+
+    </main>
+
+    <!-- Floating Quick Tasbih Counter Widget Button -->
+    <div class="fixed bottom-6 right-6 z-30">
+        <button onclick="openTasbihModal()" class="pulse-ring group relative bg-emerald-600 hover:bg-emerald-700 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 active:scale-95">
+            <i class="fa-solid fa-fingerprint text-2xl"></i>
+            <span class="absolute -top-2 -right-1 bg-amber-500 text-slate-900 font-bold text-[10px] px-1.5 py-0.5 rounded-full border-2 border-white dark:border-slate-900">
+                Tasbih
+            </span>
+        </button>
+    </div>
+
+    <!-- Quick Digital Tasbih Modal -->
+    <div id="tasbihModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative animate-in fade-in zoom-in duration-200">
+            <button onclick="closeTasbihModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <div class="text-center mb-4">
+                <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Tasbih Digital</span>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mt-1">Penghitung Dzikir Bebas</h3>
+            </div>
+
+            <!-- Target selector -->
+            <div class="flex justify-center gap-2 mb-6">
+                <button onclick="setTasbihTarget(33)" class="tasbih-target-btn px-3 py-1 text-xs rounded-lg font-medium border border-emerald-500 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">33x</button>
+                <button onclick="setTasbihTarget(100)" class="tasbih-target-btn px-3 py-1 text-xs rounded-lg font-medium border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">100x</button>
+                <button onclick="setTasbihTarget(1000)" class="tasbih-target-btn px-3 py-1 text-xs rounded-lg font-medium border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">1000x</button>
+            </div>
+
+            <!-- Main Counter Display -->
+            <div class="flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/50 mb-6">
+                <span id="tasbihCountDisplay" class="text-6xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">0</span>
+                <span id="tasbihTargetDisplay" class="text-xs text-slate-500 dark:text-slate-400 mt-2">Target: 33</span>
+            </div>
+
+            <!-- Large Tap Button -->
+            <button onclick="incrementTasbihModal()" class="w-full py-8 bg-gradient-to-b from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 active:scale-98 text-white font-bold text-xl rounded-2xl shadow-lg shadow-emerald-600/30 flex flex-col items-center justify-center gap-1 transition-all">
+                <i class="fa-solid fa-hand-pointer text-2xl animate-bounce"></i>
+                <span>TEKAN DI SINI</span>
+            </button>
+
+            <!-- Reset Button -->
+            <div class="flex justify-center mt-4">
+                <button onclick="resetTasbihModal()" class="text-xs text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Hitungan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
+        <div class="max-w-5xl mx-auto px-4 flex flex-col items-center gap-2">
+            <p class="font-quran text-lg text-emerald-700 dark:text-emerald-400">فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ</p>
+            <p class="italic">"Ingatlah kepada-Ku, niscaya Aku ingat kepadamu..." (QS. Al-Baqarah: 152)</p>
+            <p class="mt-2 text-[11px] text-slate-400">Aplikasi Dzikir Pilihan Interaktif • Teks Quran Tajwid Jelas & Terjemahan Sahih</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global State Variables
+        let activeCategory = 'pagi';
+        let arabicFontSize = 32;
+        let showTransliteration = true;
+        let soundEnabled = true;
+        let userProgress = {}; // Stores checked state & current counts per ID
+
+        // Audio Context for sound synthesizer (no external audio links needed)
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playTapSound(freq = 600, duration = 0.05, type = 'sine') {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {
+                console.log('Audio playback prevented');
+            }
+        }
+
+        function playCompletionSound() {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const now = ctx.currentTime;
+                
+                // Play a pleasant two-note chord
+                [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + (idx * 0.08));
+                    gain.gain.setValueAtTime(0.2, now + (idx * 0.08));
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.08) + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + (idx * 0.08));
+                    osc.stop(now + (idx * 0.08) + 0.3);
+                });
+            } catch (e) {}
+        }
+
+        function triggerVibration(pattern = [30]) {
+            if ('vibrate' in navigator) {
+                try {
+                    navigator.vibrate(pattern);
+                } catch(e) {}
+            }
+        }
+
+        // --- DHIKR DATASTORE ---
+        const dhikrData = {
+            pagi: [
+                {
+                    id: 'pagi_1',
+                    title: 'Membaca Ayat Kursi',
+                    target: 1,
+                    arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+                    latin: 'Allahu laa ilaaha illaa huwal hayyul qayyuum, laa ta\'khudzuhu sinatun walaa naum, lahu maa fis-samaawaati wa maa fil-ardh, man dzalladzii yasyfa\'u \'indahu illaa bi-idznih, ya\'lamu maa baina aidiihim wa maa khalfahum, wa laa yuhiithuuna bisyai-im min \'ilmihi illaa bimaa syaa\', wasi\'a kursiyyuhus-samaawaati wal-ardh, wa laa ya-uuduhu hifzhuhumaa wa huwal \'aliyyul \'azhiim.',
+                    translation: 'Allah, tidak ada Tuhan (yang berhak disembah) melainkan Dia Yang Hidup kekal lagi terus menerus mengurus (makhluk-Nya); tidak mengantuk dan tidak tidur. Kepunyaan-Nya apa yang di langit dan di bumi. Tiada yang dapat memberi syafa\'at di sisi Allah tanpa izin-Nya. Allah mengetahui apa-apa yang di hadapan mereka dan di belakang mereka, dan mereka tidak mengetahui apa-apa dari ilmu Allah melainkan apa yang dikehendaki-Nya. Kursi Allah meliputi langit dan bumi. Dan Allah tidak merasa berat memelihara keduanya, dan Allah Maha Tinggi lagi Maha Besar. (QS. Al-Baqarah: 255)',
+                    benefit: 'Barangsiapa membacanya di pagi hari, ia akan dilindungi dari gangguan jin hingga sore hari. (HR. An-Nasa\'i & Al-Hakim)'
+                },
+                {
+                    id: 'pagi_2',
+                    title: 'Membaca Surah Al-Ikhlas, Al-Falaq, & An-Naas',
+                    target: 3,
+                    arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ ... ۝ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ... ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ ...',
+                    latin: 'Membaca Surah Al-Ikhlas, Surah Al-Falaq, dan Surah An-Naas masing-masing sebanyak 3 kali.',
+                    translation: 'Katakanlah: Dia-lah Allah, Yang Maha Esa... Katakanlah: Aku berlindung kepada Tuhan Yang Menguasai subuh... Katakanlah: Aku berlindung kepada Tuhan (yang memelihara dan menguasai) manusia...',
+                    benefit: 'Barangsiapa membacanya 3 kali di pagi dan sore hari, maka cukuplah baginya dari segala sesuatu (kecukupan dan perlindungan). (HR. Abu Daud & Tirmidzi)'
+                },
+                {
+                    id: 'pagi_3',
+                    title: 'Sayyidul Istighfar (Pemimpin Istighfar)',
+                    target: 1,
+                    arabic: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
+                    latin: 'Allahumma anta rabbii laa ilaaha illaa anta khalaqtanii wa anaa \'abduka wa anaa \'alaa \'ahdika wa wa\'dika mastatha\'tu, a\'uudzu bika min syarri maa shana\'tu, abuu-u laka bini\'matika \'alayya wa abuu-u bidzanbii faghfir lii fa-innahu laa yagafirudz-dzunuuba illaa anta.',
+                    translation: 'Ya Allah, Engkau adalah Rabbku, tidak ada Tuhan yang berhak disembah selain Engkau. Engkau yang menciptakanku dan aku adalah hamba-Mu. Aku bertahan di atas perjanjian dan janji-Mu semampuku. Aku berlindung kepada-Mu dari keburukan apa yang kuperbuat. Aku mengakui nikmat-Mu kepadaku dan aku mengakui dosaku, maka ampunilah aku. Sesungguhnya tidak ada yang mengampuni dosa selain Engkau.',
+                    benefit: 'Barangsiapa membacanya dengan yakin di pagi hari lalu meninggal pada hari itu sebelum sore, maka ia termasuk penghuni surga. (HR. Bukhari)'
+                },
+                {
+                    id: 'pagi_4',
+                    title: 'Menyambut Pagi Hari dengan Kesyukuran',
+                    target: 1,
+                    arabic: 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَٰذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَٰذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ',
+                    latin: 'Ashbahnaa wa ashbahal-mulku lillaah wal-hamdulillaah, laa ilaaha illallaahu wahdahu laa syariika lah, lahul-mulku wa lahul-hamdu wa huwa \'alaa kulli syai-in qadiir. Rabbi as-aluka khaira maa fii haadzal-yaumi wa khaira maa ba\'dahu, wa a\'uudzu bika min syarri maa fii haadzal-yaumi wa syarri maa ba\'dahu.',
+                    translation: 'Kami telah memasuki waktu pagi dan kerajaan milik Allah, segala puji bagi Allah. Tidak ada Tuhan selain Allah Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan puji-pujian, dan Dia Maha Kuasa atas segala sesuatu. Ya Rabb, aku memohon kepada-Mu kebaikan hari ini dan kebaikan sesudahnya, dan aku berlindung kepada-Mu dari keburukan hari ini dan keburukan sesudahnya.',
+                    benefit: 'Dzikir rutin Rasulullah SAW saat menyambut terbitnya fajar pagi. (HR. Muslim)'
+                },
+                {
+                    id: 'pagi_5',
+                    title: 'Memohon Keselamatan & Kesehatan',
+                    target: 3,
+                    arabic: 'اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَٰهَ إِلَّا أَنْتَ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكُفْرِ وَالْفَقْرِ، وَأَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، لَا إِلَٰهَ إِلَّا أَنْتَ',
+                    latin: 'Allahumma \'aafinii fii badanii, Allahumma \'aafinii fii sam\'ii, Allahumma \'aafinii fii basharii, laa ilaaha illaa anta. Allahumma innii a\'uudzu bika minal-kufri wal-faqri, wa a\'uudzu bika min \'adzaabil-qabri, laa ilaaha illaa anta.',
+                    translation: 'Ya Allah, selamatkanlah tubuhku. Ya Allah, selamatkanlah pendengaranku. Ya Allah, selamatkanlah penglihatanku. Tidak ada Tuhan selain Engkau. Ya Allah, aku berlindung kepada-Mu dari kekafiran dan fakir. Dan aku berlindung kepada-Mu dari siksa kubur. Tidak ada Tuhan selain Engkau.',
+                    benefit: 'Memohon perlindungan kesehatan jasmani, indera, serta benteng dari kemiskinan dan siksa kubur. (HR. Abu Daud)'
+                },
+                {
+                    id: 'pagi_6',
+                    title: 'Dzikir Perlindungan Dari Segala Bahaya',
+                    target: 3,
+                    arabic: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
+                    latin: 'Bismillahilladzii laa yadhurru ma\'asmihi syai-un fil-ardhi wa laa fis-samaa-i wa huwas-samii\'ul-\'aliim.',
+                    translation: 'Dengan nama Allah yang bila disebut, segala sesuatu di bumi dan di langit tidak akan berbahaya, Dia Maha Mendengar lagi Maha Mengetahui.',
+                    benefit: 'Barangsiapa membacanya 3 kali di pagi hari, tidak ada musibah mendadak yang akan menimpanya hingga sore hari. (HR. Abu Daud & Tirmidzi)'
+                },
+                {
+                    id: 'pagi_7',
+                    title: 'Keridhaan Kepada Allah, Islam & Nabi Muhammad',
+                    target: 3,
+                    arabic: 'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا',
+                    latin: 'Radhiitu billaahi rabbaa, wa bil-Islaami diinaa, wa bi-Muhammadin shallallaahu \'alaihi wa sallama nabiyyaa.',
+                    translation: 'Aku ridha Allah sebagai Rabbku, Islam sebagai agamaku, dan Muhammad SAW sebagai nabiku.',
+                    benefit: 'Barangsiapa membacanya 3 kali di pagi hari, Allah berjanji akan meridhai-Nya pada hari kiamat. (HR. Ahmad & Tirmidzi)'
+                },
+                {
+                    id: 'pagi_8',
+                    title: 'Kepasrahan Kepada Yang Maha Hidup',
+                    target: 1,
+                    arabic: 'يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلَا تَكِلْنِي إِلَىٰ نَفْسِي طَرْفَةَ عَيْنٍ',
+                    latin: 'Yaa Hayyu Yaa Qayyuumu birahmatika astaghiits, ashlih lii sya\'nii kullahu, wa laa takilnii ilaa nafsii tharfata \'ainin.',
+                    translation: 'Wahai Yang Maha Hidup, wahai Yang Berdiri Sendiri (mengurus makhluk-Nya), dengan rahmat-Mu aku memohon pertolongan. Perbaikilah seluruh urusanku dan janganlah Engkau serahkan aku kepada diriku sendiri walau sekejap mata pun.',
+                    benefit: 'Doa wujud ketergantungan penuh seorang hamba kepada perlindungan Allah Ta\'ala. (HR. Al-Hakim)'
+                },
+                {
+                    id: 'pagi_9',
+                    title: 'Memohon Ilmu Bermanfaat, Rezeki Thayyib & Amal Diterima',
+                    target: 1,
+                    arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا',
+                    latin: 'Allahumma innii as-aluka \'ilman naafi\'aa, wa rizqan thayyibaa, wa \'amalan mutaqabbalaa.',
+                    translation: 'Ya Allah, sesungguhnya aku memohon kepada-Mu ilmu yang bermanfaat, rezeki yang baik (halal), dan amal yang diterima.',
+                    benefit: 'Dibaca rutin oleh Rasulullah SAW setiap selesai shalat Subuh atau saat pagi hari. (HR. Ibn Majah)'
+                },
+                {
+                    id: 'pagi_10',
+                    title: 'Tasbih & Pujian Sebanyak 100 Kali',
+                    target: 100,
+                    arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
+                    latin: 'Subhaanallaahi wa bihamdihi.',
+                    translation: 'Maha Suci Allah dan dengan memuji-Nya.',
+                    benefit: 'Barangsiapa membacanya 100x sehari, maka diampuni dosa-dosanya walaupun sebanyak buih di lautan. (HR. Bukhari & Muslim)'
+                }
+            ],
+            petang: [
+                {
+                    id: 'petang_1',
+                    title: 'Membaca Ayat Kursi',
+                    target: 1,
+                    arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+                    latin: 'Allahu laa ilaaha illaa huwal hayyul qayyuum...',
+                    translation: 'Allah, tidak ada Tuhan (yang berhak disembah) melainkan Dia Yang Hidup kekal lagi terus menerus mengurus (makhluk-Nya)...',
+                    benefit: 'Barangsiapa membacanya di sore hari, ia akan dilindungi dari gangguan jin hingga pagi hari. (HR. Al-Hakim)'
+                },
+                {
+                    id: 'petang_2',
+                    title: 'Membaca 3 Surah Perlindungan (Al-Ikhlas, Al-Falaq, An-Naas)',
+                    target: 3,
+                    arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ ... ۝ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ... ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ ...',
+                    latin: 'Membaca Surah Al-Ikhlas, Surah Al-Falaq, dan Surah An-Naas masing-masing 3 kali.',
+                    translation: 'Katakanlah: Dia-lah Allah, Yang Maha Esa...',
+                    benefit: 'Mencukupi segala perlindungan malam hari dari kejahatan makhluk. (HR. Tirmidzi)'
+                },
+                {
+                    id: 'petang_3',
+                    title: 'Sayyidul Istighfar Petang',
+                    target: 1,
+                    arabic: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
+                    latin: 'Allahumma anta rabbii laa ilaaha illaa anta khalaqtanii...',
+                    translation: 'Ya Allah, Engkau adalah Rabbku, tidak ada Tuhan selain Engkau...',
+                    benefit: 'Barangsiapa membacanya di sore hari lalu meninggal di malam hari, ia termasuk penghuni surga. (HR. Bukhari)'
+                },
+                {
+                    id: 'petang_4',
+                    title: 'Dzikir Memasuki Waktu Sore/Petang',
+                    target: 1,
+                    arabic: 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
+                    latin: 'Amsainaa wa amsal-mulku lillaah wal-hamdulillaah, laa ilaaha illallaahu wahdahu laa syariika lah, lahul-mulku wa lahul-hamdu wa huwa \'alaa kulli syai-in qadiir.',
+                    translation: 'Kami telah memasuki waktu sore dan kerajaan milik Allah, segala puji bagi Allah. Tidak ada Tuhan selain Allah Yang Maha Esa, tiada sekutu bagi-Nya.',
+                    benefit: 'Memohon kebaikan malam ini dan perlindungan dari keburukannya. (HR. Muslim)'
+                },
+                {
+                    id: 'petang_5',
+                    title: 'Dzikir Perlindungan Dari Sengatan & Kejahatan Makhluk',
+                    target: 3,
+                    arabic: 'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ',
+                    latin: 'A\'uudzu bikalimaatillaahit-taammaati min syarri maa khalaq.',
+                    translation: 'Aku berlindung dengan kalimat-kalimat Allah yang sempurna dari kejahatan makhluk yang diciptakan-Nya.',
+                    benefit: 'Barangsiapa membacanya 3 kali pada sore hari, tidak ada racun/sengatan yang akan membahayakannya di malam itu. (HR. Ahmad & Tirmidzi)'
+                },
+                {
+                    id: 'petang_6',
+                    title: 'Dzikir Perlindungan Bismillahilladzi',
+                    target: 3,
+                    arabic: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
+                    latin: 'Bismillahilladzii laa yadhurru ma\'asmihi syai-un fil-ardhi wa laa fis-samaa-i wa huwas-samii\'ul-\'aliim.',
+                    translation: 'Dengan nama Allah yang bila disebut, segala sesuatu di bumi dan di langit tidak akan berbahaya, Dia Maha Mendengar lagi Maha Mengetahui.',
+                    benefit: 'Perlindungan total dari bahaya hingga fajar subuh menyingsing. (HR. Abu Daud)'
+                },
+                {
+                    id: 'petang_7',
+                    title: 'Pujian Tahlil 100 Kali atau 10 Kali',
+                    target: 10,
+                    arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
+                    latin: 'Laa ilaaha illallaahu wahdahu laa syariika lah, lahul-mulku wa lahul-hamdu wa huwa \'alaa kulli syai-in qadiir.',
+                    translation: 'Tidak ada Tuhan selain Allah, Yang Maha Esa, tidak ada sekutu bagi-Nya. Bagi-Nya kerajaan dan puji-pujian, dan Dia Maha Kuasa atas segala sesuatu.',
+                    benefit: 'Mendapatkan pahala memerdekakan budak, dituliskan kebaikan, dihapuskan keburukan, dan menjadi benteng dari setan. (HR. Bukhari)'
+                }
+            ],
+            shalat: [
+                {
+                    id: 'shalat_1',
+                    title: 'Membaca Istighfar & Doa Keselamatan',
+                    target: 3,
+                    arabic: 'أَسْتَغْفِرُ اللَّهَ (٣x) اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ',
+                    latin: 'Astaghfirullah (3x). Allahumma antas-salaam wa minkas-salaam tabaarakta yaa dzal-jalaali wal-ikraam.',
+                    translation: 'Aku memohon ampun kepada Allah (3x). Ya Allah, Engkau Maha Sejahtera dan dari-Mulah kesejahteraan, Maha Suci Engkau wahai Rabb Pemilik Keagungan dan Kemuliaan.',
+                    benefit: 'Dibaca langsung seusai salam Shalat Fardhu. (HR. Muslim)'
+                },
+                {
+                    id: 'shalat_2',
+                    title: 'Tasbih 33 Kali',
+                    target: 33,
+                    arabic: 'سُبْحَانَ اللَّهِ',
+                    latin: 'Subhaanallaah.',
+                    translation: 'Maha Suci Allah.',
+                    benefit: 'Meyucikan nama Allah Ta\'ala sebanyak 33 kali.'
+                },
+                {
+                    id: 'shalat_3',
+                    title: 'Tahmid 33 Kali',
+                    target: 33,
+                    arabic: 'الْحَمْدُ لِلَّهِ',
+                    latin: 'Alhamdulillaah.',
+                    translation: 'Segala puji bagi Allah.',
+                    benefit: 'Memuji kenikmatan Allah sebanyak 33 kali.'
+                },
+                {
+                    id: 'shalat_4',
+                    title: 'Takbir 33 Kali',
+                    target: 33,
+                    arabic: 'اللَّهُ أَكْبَرُ',
+                    latin: 'Allaahu Akbar.',
+                    translation: 'Allah Maha Besar.',
+                    benefit: 'Mengagungkan kebesaran Allah sebanyak 33 kali.'
+                },
+                {
+                    id: 'shalat_5',
+                    title: 'Penutup Dzikir Shalat (Genap 100)',
+                    target: 1,
+                    arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
+                    latin: 'Laa ilaaha illallaahu wahdahu laa syariika lah, lahul-mulku wa lahul-hamdu wa huwa \'alaa kulli syai-in qadiir.',
+                    translation: 'Tidak ada Tuhan selain Allah Yang Maha Esa, tidak ada sekutu bagi-Nya. Bagi-Nya kerajaan dan puji-pujian, dan Dia Maha Kuasa atas segala sesuatu.',
+                    benefit: 'Diampuni kesalahan-kesalahannya walaupun sebanyak buih di lautan. (HR. Muslim)'
+                }
+            ],
+            pilihan: [
+                {
+                    id: 'pilihan_1',
+                    title: 'Dzikir Paling Dicintai Allah',
+                    target: 100,
+                    arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ',
+                    latin: 'Subhaanallaahi wa bihamdihi, subhaanallaahil-\'azhiim.',
+                    translation: 'Maha Suci Allah dengan memuji-Nya, Maha Suci Allah Yang Maha Agung.',
+                    benefit: 'Dua kalimat yang ringan di lisan, berat di timbangan mizan, dan sangat dicintai oleh Ar-Rahman. (HR. Bukhari & Muslim)'
+                },
+                {
+                    id: 'pilihan_2',
+                    title: 'Laa Haula wa Laa Quwwata Illa Billah (Simpanan Surga)',
+                    target: 33,
+                    arabic: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+                    latin: 'Laa haula wa laa quwwata illaa billaah.',
+                    translation: 'Tidak ada daya dan kekuatan kecuali dengan pertolongan Allah.',
+                    benefit: 'Merupakan salah satu harta simpanan berharga (kanz) di dalam Surga. (HR. Bukhari)'
+                },
+                {
+                    id: 'pilihan_3',
+                    title: 'Shalawat Atas Nabi Muhammad SAW',
+                    target: 10,
+                    arabic: 'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَىٰ نَبِيِّنَا مُحَمَّدٍ',
+                    latin: 'Allahumma shalli wa sallim \'alaa nabiyyinaa Muhammad.',
+                    translation: 'Ya Allah, limpahkanlah shalawat dan salam kepada Nabi kami Muhammad.',
+                    benefit: 'Barangsiapa bershalawat kepadaku 10 kali di pagi dan sore hari, ia akan mendapat syafaatku kelak. (HR. Ath-Thabrani)'
+                },
+                {
+                    id: 'pilihan_4',
+                    title: 'Istighfar Pelebur Dosa',
+                    target: 100,
+                    arabic: 'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
+                    latin: 'Astaghfirullaaha wa atuubu ilaih.',
+                    translation: 'Aku memohon ampun kepada Allah dan bertaubat kepada-Nya.',
+                    benefit: 'Rasulullah SAW beristighfar dan bertaubat lebih dari 70 sampai 100 kali dalam sehari. (HR. Bukhari)'
+                }
+            ]
+        };
+
+        // --- LOCAL STORAGE PERSISTENCE ---
+        function loadSavedState() {
+            try {
+                const savedProgress = localStorage.getItem('dzikir_user_progress');
+                if (savedProgress) {
+                    userProgress = JSON.parse(savedProgress);
+                }
+                const savedFont = localStorage.getItem('dzikir_arabic_font_size');
+                if (savedFont) {
+                    arabicFontSize = parseInt(savedFont, 10);
+                }
+                const savedTranslit = localStorage.getItem('dzikir_show_translit');
+                if (savedTranslit !== null) {
+                    showTransliteration = JSON.parse(savedTranslit);
+                }
+                const savedSound = localStorage.getItem('dzikir_sound_enabled');
+                if (savedSound !== null) {
+                    soundEnabled = JSON.parse(savedSound);
+                }
+            } catch (e) {
+                console.warn('LocalStorage error:', e);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem('dzikir_user_progress', JSON.stringify(userProgress));
+                localStorage.setItem('dzikir_arabic_font_size', arabicFontSize);
+                localStorage.setItem('dzikir_show_translit', JSON.stringify(showTransliteration));
+                localStorage.setItem('dzikir_sound_enabled', JSON.stringify(soundEnabled));
+            } catch (e) {}
+        }
+
+        // --- RENDERING FUNCTIONS ---
+        function renderDhikrList() {
+            const container = document.getElementById('dhikrListContainer');
+            if (!container) return;
+            
+            const currentItems = dhikrData[activeCategory] || [];
+            container.innerHTML = '';
+
+            currentItems.forEach((item, index) => {
+                const state = userProgress[item.id] || { count: 0, completed: false };
+                const isCompleted = state.completed || state.count >= item.target;
+
+                const card = document.createElement('div');
+                card.className = `group bg-white dark:bg-slate-900 rounded-3xl p-5 md:p-6 border transition-all duration-300 shadow-sm hover:shadow-md ${
+                    isCompleted 
+                        ? 'border-emerald-500/50 dark:border-emerald-600/40 bg-emerald-50/30 dark:bg-emerald-950/20' 
+                        : 'border-slate-200 dark:border-slate-800'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex flex-col gap-4">
+                        <!-- Top Header Row -->
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center">
+                                    ${index + 1}
+                                </span>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base md:text-lg">
+                                    ${item.title}
+                                </h3>
+                            </div>
+                            
+                            <!-- Badges & Checkbox -->
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40">
+                                    Target: ${item.target}x
+                                </span>
+                                
+                                <!-- Direct Toggle Checkbox -->
+                                <button onclick="toggleDhikrComplete('${item.id}')" class="w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+                                    isCompleted 
+                                        ? 'bg-emerald-600 text-white shadow-sm' 
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
+                                }" title="${isCompleted ? 'Tandai belum' : 'Tandai selesai'}">
+                                    <i class="fa-solid ${isCompleted ? 'fa-check text-sm' : 'fa-check text-xs'}"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Arabic Text Content -->
+                        <div class="arabic-text py-2 px-1">
+                            <p class="font-quran text-slate-900 dark:text-emerald-5 border-r-4 border-emerald-500 pr-3 my-1" style="font-size: ${arabicFontSize}px;">
+                                ${item.arabic}
+                            </p>
+                        </div>
+
+                        <!-- Transliteration (Latin) -->
+                        <div class="${showTransliteration ? 'block' : 'hidden'} text-xs md:text-sm text-emerald-800 dark:text-emerald-300/90 font-medium italic bg-emerald-50/60 dark:bg-slate-800/50 p-3 rounded-xl border border-emerald-100/80 dark:border-slate-700/50">
+                            "${item.latin}"
+                        </div>
+
+                        <!-- Translation (Indonesian) -->
+                        <div class="text-xs md:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            <span class="font-semibold text-slate-700 dark:text-slate-200">Artinya:</span> ${item.translation}
+                        </div>
+
+                        <!-- Benefit / Hadith Note -->
+                        ${item.benefit ? `
+                            <div class="text-xs text-amber-800 dark:text-amber-300/90 bg-amber-50/80 dark:bg-amber-950/30 p-2.5 rounded-xl border border-amber-200/60 dark:border-amber-900/40 flex items-start gap-2">
+                                <i class="fa-solid fa-circle-info text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                <span>${item.benefit}</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- Bottom Counter Control Button -->
+                        <div class="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 mt-1">
+                            <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                <span>Hitungan:</span>
+                                <span class="text-emerald-600 dark:text-emerald-400 font-bold text-sm">${state.count}</span>
+                                <span>/ ${item.target}</span>
+                            </div>
+
+                            <button onclick="incrementDhikrCount('${item.id}')" class="px-5 py-2.5 rounded-2xl font-bold text-sm transition-all flex items-center gap-2 active:scale-95 shadow-sm ${
+                                isCompleted 
+                                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300' 
+                                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
+                            }">
+                                <i class="fa-solid fa-hand-pointer text-xs"></i>
+                                <span>${isCompleted ? 'Tambah Lagi' : 'Hitung Dzikir'} (${state.count}/${item.target})</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            updateProgressHeader();
+        }
+
+        function updateProgressHeader() {
+            const currentItems = dhikrData[activeCategory] || [];
+            const total = currentItems.length;
+            let completed = 0;
+
+            currentItems.forEach(item => {
+                const state = userProgress[item.id] || { count: 0, completed: false };
+                if (state.completed || state.count >= item.target) {
+                    completed++;
+                }
+            });
+
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('completedCount').innerText = completed;
+            document.getElementById('totalCount').innerText = `/ ${total} Selesai`;
+            document.getElementById('percentText').innerText = `${percent}%`;
+            document.getElementById('progressBarInner').style.width = `${percent}%`;
+        }
+
+        // --- DHIKR INTERACTION HANDLERS ---
+        function incrementDhikrCount(id) {
+            const items = dhikrData[activeCategory] || [];
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            if (!userProgress[id]) {
+                userProgress[id] = { count: 0, completed: false };
+            }
+
+            userProgress[id].count += 1;
+            playTapSound(550, 0.04);
+            triggerVibration([25]);
+
+            if (userProgress[id].count >= item.target && !userProgress[id].completed) {
+                userProgress[id].completed = true;
+                playCompletionSound();
+                triggerVibration([40, 60, 40]);
+            }
+
+            saveState();
+            renderDhikrList();
+        }
+
+        function toggleDhikrComplete(id) {
+            const items = dhikrData[activeCategory] || [];
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            if (!userProgress[id]) {
+                userProgress[id] = { count: 0, completed: false };
+            }
+
+            const isCurrentlyCompleted = userProgress[id].completed || userProgress[id].count >= item.target;
+
+            if (isCurrentlyCompleted) {
+                userProgress[id].completed = false;
+                userProgress[id].count = 0;
+                playTapSound(350, 0.04);
+            } else {
+                userProgress[id].completed = true;
+                userProgress[id].count = item.target;
+                playCompletionSound();
+                triggerVibration([40, 60, 40]);
+            }
+
+            saveState();
+            renderDhikrList();
+        }
+
+        function resetCurrentProgress() {
+            if (confirm('Apakah Anda yakin ingin mengulang hitungan & ceklis untuk kategori ini?')) {
+                const currentItems = dhikrData[activeCategory] || [];
+                currentItems.forEach(item => {
+                    if (userProgress[item.id]) {
+                        userProgress[item.id] = { count: 0, completed: false };
+                    }
+                });
+                playTapSound(300, 0.1);
+                saveState();
+                renderDhikrList();
+            }
+        }
+
+        // --- CATEGORY TAB SWITCHING ---
+        function switchCategory(categoryKey) {
+            activeCategory = categoryKey;
+            
+            // Update Tab UI active styles
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
+            });
+
+            const activeBtn = document.getElementById(`tab-${categoryKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 whitespace-nowrap bg-emerald-600 text-white shadow-md shadow-emerald-600/20';
+            }
+
+            // Update Header Banner Details
+            const titleElem = document.getElementById('activeCategoryTitle');
+            const descElem = document.getElementById('activeCategoryDesc');
+
+            if (categoryKey === 'pagi') {
+                titleElem.innerText = 'Dzikir Pagi';
+                descElem.innerText = 'Dibaca setelah Shalat Subuh hingga matahari terbit atau menjelang Dzuhur untuk memohon perlindungan dan kelapangan rezeki.';
+            } else if (categoryKey === 'petang') {
+                titleElem.innerText = 'Dzikir Petang';
+                descElem.innerText = 'Dibaca setelah Shalat Ashar hingga menjelang Isya untuk menjaga diri dari kejahatan malam dan bahaya.';
+            } else if (categoryKey === 'shalat') {
+                titleElem.innerText = 'Dzikir Setelah Shalat';
+                descElem.innerText = 'Bacaan dzikir dan wirid afdhal sesudah menunaikan Shalat Fardhu lima waktu.';
+            } else if (categoryKey === 'pilihan') {
+                titleElem.innerText = 'Dzikir Utama & Shalawat';
+                descElem.innerText = 'Kumpulan dzikir-dzikir ringan di lisan yang berbobot sangat berat di timbangan amalan.';
+            }
+
+            playTapSound(700, 0.03);
+            renderDhikrList();
+        }
+
+        // --- FONT SIZE CONTROLS ---
+        function changeFontSize(delta) {
+            arabicFontSize = Math.max(22, Math.min(52, arabicFontSize + delta));
+            document.getElementById('fontSizeDisplay').innerText = arabicFontSize;
+            saveState();
+            renderDhikrList();
+        }
+
+        function toggleShowTransliteration() {
+            showTransliteration = !showTransliteration;
+            document.getElementById('translitBtnText').innerText = showTransliteration ? 'Sembunyikan Latin' : 'Tampilkan Latin';
+            saveState();
+            renderDhikrList();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-emerald-600 dark:text-emerald-400';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+            }
+            saveState();
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('darkModeIcon');
+            if (isDark) {
+                icon.className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                icon.className = 'fa-solid fa-moon text-amber-500';
+            }
+        }
+
+        // --- FLOATING TASBIH MODAL LOGIC ---
+        let tasbihModalCount = 0;
+        let tasbihModalTarget = 33;
+
+        function openTasbihModal() {
+            const modal = document.getElementById('tasbihModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            playTapSound(650, 0.05);
+        }
+
+        function closeTasbihModal() {
+            const modal = document.getElementById('tasbihModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function setTasbihTarget(target) {
+            tasbihModalTarget = target;
+            document.getElementById('tasbihTargetDisplay').innerText = `Target: ${target}`;
+            
+            document.querySelectorAll('.tasbih-target-btn').forEach(btn => {
+                btn.className = 'tasbih-target-btn px-3 py-1 text-xs rounded-lg font-medium border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400';
+                if (btn.innerText === `${target}x`) {
+                    btn.className = 'tasbih-target-btn px-3 py-1 text-xs rounded-lg font-medium border border-emerald-500 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300';
+                }
+            });
+            playTapSound(500, 0.03);
+        }
+
+        function incrementTasbihModal() {
+            tasbihModalCount++;
+            document.getElementById('tasbihCountDisplay').innerText = tasbihModalCount;
+            playTapSound(600, 0.04);
+            triggerVibration([25]);
+
+            if (tasbihModalCount === tasbihModalTarget) {
+                playCompletionSound();
+                triggerVibration([50, 80, 50]);
+            }
+        }
+
+        function resetTasbihModal() {
+            tasbihModalCount = 0;
+            document.getElementById('tasbihCountDisplay').innerText = '0';
+            playTapSound(300, 0.08);
+        }
+
+        // Format Date to Indonesian
+        function updateDateHeader() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            document.getElementById('currentDateStr').innerText = today.toLocaleDateString('id-ID', options);
+        }
+
+        // Initialization
+        window.onload = function() {
+            loadSavedState();
+            updateDateHeader();
+            
+            // Set initial translit button label
+            document.getElementById('translitBtnText').innerText = showTransliteration ? 'Sembunyikan Latin' : 'Tampilkan Latin';
+            document.getElementById('fontSizeDisplay').innerText = arabicFontSize;
+            
+            // Render default list
+            renderDhikrList();
+        };
+    </script>
+</body>
+</html>
